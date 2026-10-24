@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEONSTOCKS // Cyberpunk Crypto & Stock Dashboard</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-theme="tokyo-night">
+    <!-- Cyberpunk Cursor & Matrix Canvas -->
+    <div class="custom-cursor"></div>
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <i class="fa-solid fa-terminal neon-icon"></i>
+        <span class="brand-text"
+          >NEON<span class="highlight">STOCKS</span></span
+        >
+        <span class="badge" data-i18n="v1_badge">v2.4 LIVE</span>
+      </div>
+
+      <div class="nav-hud">
+        <div class="hud-item">
+          <span class="hud-dot pulsing"></span>
+          <span id="hud-status" data-i18n="hud_online">SYS.ONLINE</span>
+        </div>
+        <div class="hud-item hidden-mobile">
+          <i class="fa-solid fa-bolt"></i>
+          <span>PING: <strong id="hud-ping">14</strong>ms</span>
+        </div>
+      </div>
+
+      <div class="nav-controls">
+        <!-- Theme Switcher -->
+        <select
+          id="theme-selector"
+          class="cyber-select"
+          aria-label="Select Theme"
+        >
+          <option value="tokyo-night">Tokyo Night</option>
+          <option value="cyberpunk-2077">Cyberpunk 2077</option>
+          <option value="matrix-protocol">Matrix Protocol</option>
+        </select>
+
+        <!-- Language Switcher -->
+        <button id="lang-toggle" class="cyber-btn" aria-label="Toggle Language">
+          <i class="fa-solid fa-globe"></i> <span id="lang-text">KA</span>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          id="menu-toggle"
+          class="mobile-menu-btn"
+          aria-label="Toggle Menu"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="dashboard-container">
+      <!-- Live Data Banner -->
+      <div class="live-banner">
+        <div class="live-pulse"></div>
+        <span id="live-banner-text" data-i18n="live_active"
+          >LIVE DATA ACTIVE // STREAMING REAL-TIME SIMULATION FEED</span
+        >
+      </div>
+
+      <!-- Top Summary Cards -->
+      <section class="summary-grid">
+        <!-- Bitcoin Card -->
+        <div class="cyber-card summary-card" data-asset="BTC">
+          <div class="card-header">
+            <div class="asset-info">
+              <i class="fa-brands fa-bitcoin crypto-icon"></i>
+              <div>
+                <h3>Bitcoin</h3>
+                <span class="ticker">BTC/USD</span>
+              </div>
+            </div>
+            <span class="trend-badge positive" id="btc-trend">+0.00%</span>
+          </div>
+          <div class="card-body">
+            <div class="price" id="btc-price">$68,420.50</div>
+            <div class="sparkline-container">
+              <canvas id="btc-sparkline"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ethereum Card -->
+        <div class="cyber-card summary-card" data-asset="ETH">
+          <div class="card-header">
+            <div class="asset-info">
+              <i class="fa-brands fa-ethereum crypto-icon"></i>
+              <div>
+                <h3>Ethereum</h3>
+                <span class="ticker">ETH/USD</span>
+              </div>
+            </div>
+            <span class="trend-badge positive" id="eth-trend">+0.00%</span>
+          </div>
+          <div class="card-body">
+            <div class="price" id="eth-price">$3,540.80</div>
+            <div class="sparkline-container">
+              <canvas id="eth-sparkline"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- S&P 500 Card -->
+        <div class="cyber-card summary-card" data-asset="SPX">
+          <div class="card-header">
+            <div class="asset-info">
+              <i class="fa-solid fa-chart-line stock-icon"></i>
+              <div>
+                <h3>S&P 500</h3>
+                <span class="ticker">SPX</span>
+              </div>
+            </div>
+            <span class="trend-badge positive" id="spx-trend">+0.00%</span>
+          </div>
+          <div class="card-body">
+            <div class="price" id="spx-price">$5,230.15</div>
+            <div class="sparkline-container">
+              <canvas id="spx-sparkline"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- NASDAQ Card -->
+        <div class="cyber-card summary-card" data-asset="NDX">
+          <div class="card-header">
+            <div class="asset-info">
+              <i class="fa-solid fa-microchip stock-icon"></i>
+              <div>
+                <h3>NASDAQ</h3>
+                <span class="ticker">NDX</span>
+              </div>
+            </div>
+            <span class="trend-badge negative" id="ndx-trend">-0.00%</span>
+          </div>
+          <div class="card-body">
+            <div class="price" id="ndx-price">$16,410.90</div>
+            <div class="sparkline-container">
+              <canvas id="ndx-sparkline"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content Grid (Chart + Watchlist + Quick Trade) -->
+      <div class="main-grid">
+        <!-- Chart Area -->
+        <section class="cyber-card chart-section">
+          <div class="section-header">
+            <div class="header-title">
+              <i class="fa-solid fa-chart-area"></i>
+              <h2 data-i18n="market_chart">Market Telemetry & Analysis</h2>
+            </div>
+            <div class="chart-controls">
+              <button class="time-btn active" data-time="1H">1H</button>
+              <button class="time-btn" data-time="1D">1D</button>
+              <button class="time-btn" data-time="1W">1W</button>
+              <button class="time-btn" data-time="1M">1M</button>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="mainMarketChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Quick Trade / Terminal Widget -->
+        <section class="cyber-card trade-section">
+          <div class="section-header">
+            <div class="header-title">
+              <i class="fa-solid fa-bolt-lightning"></i>
+              <h2 data-i18n="quick_trade">Quick Trade Terminal</h2>
+            </div>
+          </div>
+          <div class="trade-body">
+            <div class="input-group">
+              <label for="trade-asset" data-i18n="select_asset"
+                >SELECT ASSET</label
+              >
+              <select id="trade-asset" class="cyber-select full-width">
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="SPX">S&P 500 (SPX)</option>
+                <option value="NDX">NASDAQ (NDX)</option>
+                <option value="SOL">Solana (SOL)</option>
+                <option value="TSLA">Tesla (TSLA)</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="trade-amount" data-i18n="order_amount"
+                >ORDER AMOUNT ($)</label
+              >
+              <input
+                type="number"
+                id="trade-amount"
+                class="cyber-input"
+                value="1000"
+                min="10"
+                step="10"
+              />
+            </div>
+
+            <div class="trade-actions">
+              <button
+                id="btn-buy"
+                class="cyber-btn buy-btn"
+                data-i18n="btn_buy"
+              >
+                EXECUTE BUY
+              </button>
+              <button
+                id="btn-sell"
+                class="cyber-btn sell-btn"
+                data-i18n="btn_sell"
+              >
+                EXECUTE SELL
+              </button>
+            </div>
+
+            <div class="terminal-feedback">
+              <div class="terminal-header">
+                <i class="fa-solid fa-terminal"></i>
+                <span data-i18n="terminal_log">TERMINAL LOG</span>
+              </div>
+              <div id="terminal-output" class="terminal-content">
+                [SYSTEM] Initialized secure neural link...<br />
+                [SYSTEM] Ready for market execution.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Watchlist / Asset Table -->
+      <section class="cyber-card table-section">
+        <div class="section-header">
+          <div class="header-title">
+            <i class="fa-solid fa-list-ul"></i>
+            <h2 data-i18n="global_watchlist">Global Asset Watchlist</h2>
+          </div>
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              id="asset-search"
+              placeholder="Search ticker..."
+              data-i18n-placeholder="search_placeholder"
+            />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="cyber-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_asset">Asset</th>
+                <th data-i18n="th_price">Price (USD)</th>
+                <th data-i18n="th_24h">24h Change</th>
+                <th data-i18n="th_volume">24h Volume</th>
+                <th data-i18n="th_action">Action</th>
+              </tr>
+            </thead>
+            <tbody id="watchlist-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+  </body>
+</html>
